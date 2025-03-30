@@ -1,0 +1,7 @@
+$env:NODE_PATH = ".\node_modules"
+
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
+
+npx create-expo-app@latest
+
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Restricted
