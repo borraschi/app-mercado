@@ -63,7 +63,7 @@ export default function DashboardScreen() {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <ActivityIndicator size="large" color="#FF0000" />
-        <Text style={{ marginTop: 10, color: '#666666', fontFamily: 'Inter_400Regular' }}>
+        <Text style={{ marginTop: 10, color: '#666666', fontWeight: 'normal' }}>
           Carregando dados...
         </Text>
       </View>
@@ -73,10 +73,10 @@ export default function DashboardScreen() {
   if (error) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: '#FF0000', fontFamily: 'Inter_600SemiBold', fontSize: 16 }}>
+        <Text style={{ color: '#FF0000', fontWeight: '600', fontSize: 16 }}>
           Erro: {error}
         </Text>
-        <Text style={{ marginTop: 10, color: '#666666', fontFamily: 'Inter_400Regular' }}>
+        <Text style={{ marginTop: 10, color: '#666666', fontWeight: 'normal' }}>
           Tente novamente mais tarde.
         </Text>
       </View>
@@ -86,10 +86,10 @@ export default function DashboardScreen() {
   if (feedbackList.length === 0) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: '#666666', fontFamily: 'Inter_600SemiBold', fontSize: 16 }}>
+        <Text style={{ color: '#666666', fontWeight: '600', fontSize: 16 }}>
           Nenhuma avaliação ainda.
         </Text>
-        <Text style={{ marginTop: 10, color: '#666666', fontFamily: 'Inter_400Regular' }}>
+        <Text style={{ marginTop: 10, color: '#666666', fontWeight: 'normal' }}>
           Peça aos clientes para deixar uma avaliação na aba "Feedback".
         </Text>
       </View>
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FFFFFF',
     fontSize: 28,
-    fontFamily: 'Inter_700Bold',
+    fontWeight: 'bold', // Replaced Inter_700Bold with fontWeight
   },
   statsContainer: {
     flexDirection: 'row',
@@ -225,13 +225,13 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 24,
-    fontFamily: 'Inter_700Bold',
+    fontWeight: 'bold', // Replaced Inter_700Bold with fontWeight
     color: '#FF0000',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
     color: '#666666',
   },
   chartContainer: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
   chartTitle: {
     fontSize: 18,
-    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
     marginBottom: 16,
     color: '#FF0000',
   },
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
     marginBottom: 16,
     color: '#FF0000',
   },
@@ -277,16 +277,16 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     color: '#FFFFFF',
-    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
   },
   dateText: {
     color: '#666666',
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
     fontSize: 14,
   },
   commentText: {
     color: '#333333',
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
     fontSize: 16,
     marginBottom: 8,
   },
@@ -307,6 +307,6 @@ const styles = StyleSheet.create({
   categoryTagText: {
     color: '#FF0000',
     fontSize: 12,
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
   },
 });

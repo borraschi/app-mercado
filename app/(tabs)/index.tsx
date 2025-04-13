@@ -62,12 +62,16 @@ export default function App() {
       Alert.alert(
         'Obrigado!',
         'Sua avaliação foi enviada com sucesso. Por favor, devolva o tablet ao atendente.',
-        [{ text: 'OK', onPress: () => {
-          // Reset the form after the user acknowledges the message
-          setRating(0);
-          setComment('');
-          setSelectedOptions([]);
-        }}]
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setRating(0);
+              setComment('');
+              setSelectedOptions([]);
+            },
+          },
+        ]
       );
     } else {
       Alert.alert('Erro', 'Não foi possível enviar a avaliação. Tente novamente.');
@@ -112,7 +116,14 @@ export default function App() {
             onPress={() => handleOptionPress(option.id)}
             accessibilityLabel={option.label}
           >
-            <Text style={styles.optionText}>{option.label}</Text>
+            <Text
+              style={[
+                styles.optionText,
+                selectedOptions.includes(option.id) && styles.optionTextSelected,
+              ]}
+            >
+              {option.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -158,21 +169,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    fontFamily: 'Inter_600SemiBold',
     color: '#000000',
     marginBottom: 16,
     textAlign: 'center',
   },
   subtitlePrimary: {
     fontSize: 16,
-    fontFamily: 'Inter_600SemiBold',
+    fontWeight: '600',
     color: '#000000',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    fontFamily: 'Inter_600SemiBold',
     color: '#000000',
     marginBottom: 16,
     textAlign: 'center',
@@ -207,7 +216,10 @@ const styles = StyleSheet.create({
   optionText: {
     color: '#FF0000',
     fontSize: 14,
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal',
+  },
+  optionTextSelected: {
+    color: '#FFF9E6',
   },
   input: {
     height: 120,
@@ -218,7 +230,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
     backgroundColor: '#FFF9E6',
-    fontFamily: 'Inter_400Regular',
+    fontWeight: 'normal',
     color: '#333333',
   },
   button: {
@@ -231,6 +243,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontFamily: 'Inter_700Bold',
+    fontWeight: 'bold',
   },
 });
