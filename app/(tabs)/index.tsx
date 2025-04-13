@@ -11,6 +11,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSubmitFeedback } from '@/hooks/useSubmitFeedback';
 
 // Definindo o tipo para as opções de feedback
 interface FeedbackOption {
@@ -33,7 +34,7 @@ export default function App() {
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState<string>('');
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { submitFeedback, isSubmitting } = useSubmitFeedback();
 
   const handleStarPress = (star: number): void => {
     setRating(star);
@@ -55,26 +56,21 @@ export default function App() {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const response = await fetch('https://sua-api.com/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, selectedOptions, comment }),
-      });
+    const success = await submitFeedback({ rating, selectedOptions, comment });
 
-      if (response.ok) {
-        Alert.alert('Sucesso', 'Avaliação enviada com sucesso!');
-        setRating(0);
-        setComment('');
-        setSelectedOptions([]);
-      } else {
-        Alert.alert('Erro', 'Não foi possível enviar a avaliação.');
-      }
-    } catch (error) {
-      Alert.alert('Erro', 'Ocorreu um problema ao enviar.');
-    } finally {
-      setIsSubmitting(false);
+    if (success) {
+      Alert.alert(
+        'Obrigado!',
+        'Sua avaliação foi enviada com sucesso. Por favor, devolva o tablet ao atendente.',
+        [{ text: 'OK', onPress: () => {
+          // Reset the form after the user acknowledges the message
+          setRating(0);
+          setComment('');
+          setSelectedOptions([]);
+        }}]
+      );
+    } else {
+      Alert.alert('Erro', 'Não foi possível enviar a avaliação. Tente novamente.');
     }
   };
 
@@ -104,8 +100,7 @@ export default function App() {
         ))}
       </View>
       <Text style={styles.subtitlePrimary}>Toque para avaliar</Text>
-      <Text style={styles.subtitle}>Selecione os motivos da sua avaliação:
-      </Text>
+      <Text style={styles.subtitle}>Selecione os motivos da sua avaliação:</Text>
       <View style={styles.optionsContainer}>
         {feedbackOptions.map((option) => (
           <TouchableOpacity
@@ -150,22 +145,22 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
-    paddingVertical: 80, // Aumentado para 80 para dar mais espaço no topo e no fundo
-    alignItems: 'center', // Centraliza horizontalmente
+    paddingVertical: 80,
+    alignItems: 'center',
   },
   logo: {
     width: 120,
     height: 120,
     borderRadius: 60,
     resizeMode: 'cover',
-    marginBottom: 24, // Aumentado para 24 para dar mais espaço ao título
+    marginBottom: 24,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'Inter_600SemiBold',
     color: '#000000',
-    marginBottom: 16, // Reduzido para 16 para equilibrar
+    marginBottom: 16,
     textAlign: 'center',
   },
   subtitlePrimary: {
@@ -179,25 +174,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontFamily: 'Inter_600SemiBold',
     color: '#000000',
-    marginBottom: 16, // Reduzido para 16 para equilibrar
+    marginBottom: 16,
     textAlign: 'center',
   },
   starsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 24, // Mantido em 24 para dar espaço às opções
+    marginBottom: 24,
   },
   starButton: {
-    marginHorizontal: 10, // Espaçamento entre estrelas
+    marginHorizontal: 10,
   },
   optionsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center', // Centraliza horizontalmente
-    alignItems: 'center', // Centraliza verticalmente
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  
   optionButton: {
     backgroundColor: '#FFF9E6',
     borderRadius: 12,
@@ -222,7 +216,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    marginBottom: 16, // Reduzido para 16 para conectar com o botão
+    marginBottom: 16,
     backgroundColor: '#FFF9E6',
     fontFamily: 'Inter_400Regular',
     color: '#333333',
@@ -232,7 +226,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 40, // Aumentado para 40 para dar espaço no fundo
+    marginBottom: 40,
   },
   buttonText: {
     color: '#FFFFFF',
