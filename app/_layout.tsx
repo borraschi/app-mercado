@@ -4,9 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { EXPO_ROUTER_IMPORT_MODE } from '@/config/env';
-
-console.log('EXPO_ROUTER_IMPORT_MODE:', EXPO_ROUTER_IMPORT_MODE);
+// import { EXPO_ROUTER_IMPORT_MODE } from '@/config/env';
+// console.log('EXPO_ROUTER_IMPORT_MODE:', EXPO_ROUTER_IMPORT_MODE);
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
