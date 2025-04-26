@@ -1,9 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
-import { LineChart, BarChart } from 'react-native-chart-kit';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { LineChart, PieChart } from 'react-native-chart-kit';
 import { useFeedbackData } from '@/hooks/useFeedbackData';
 
-// Definindo o tipo para as opções de feedback (copied from index.tsx to map labels)
+// Definindo o tipo para as opções de feedback
 interface FeedbackOption {
   id: string;
   label: string;
@@ -26,7 +26,16 @@ const calculateRatingsDistribution = (feedbackList: any[]) => {
   feedbackList.forEach((feedback) => {
     ratings[feedback.rating] = (ratings[feedback.rating] || 0) + 1;
   });
-  return ratings;
+
+  const total = feedbackList.length;
+  const colors = ['#FF9999', '#FFBB99', '#FFCC99', '#FFDD99', '#FFEE99']; // Vermelho claro a amarelo
+  return Object.keys(ratings).map((star, index) => ({
+    name: `${star}★`,
+    value: ratings[star],
+    percentage: total > 0 ? ((ratings[star] / total) * 100).toFixed(1) : 0,
+    color: colors[index],
+    starValue: parseInt(star)
+  }));
 };
 
 // Utility function to calculate average rating
@@ -36,28 +45,43 @@ const calculateAverageRating = (feedbackList: any[]) => {
   return (total / feedbackList.length).toFixed(1);
 };
 
-// Utility function to calculate monthly averages (simplified)
+// Utility function to calculate monthly averages - modificada para 12 meses
 const calculateMonthlyAverages = (feedbackList: any[]) => {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-  const monthlyData = [0, 0, 0, 0, 0, 0]; // Placeholder for 6 months
-  const currentMonth = new Date().getMonth(); // 0-11
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const monthlyData = Array(12).fill(0);
+  const monthlyCount = Array(12).fill(0);
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
 
   feedbackList.forEach((feedback) => {
-    const date = feedback.createdAt?.toDate(); // Convert Firestore Timestamp to Date
+    const date = feedback.createdAt?.toDate();
     if (date) {
-      const monthIndex = (date.getMonth() + 12 - currentMonth) % 12;
-      if (monthIndex < 6) {
-        monthlyData[5 - monthIndex] = (monthlyData[5 - monthIndex] || 0) + feedback.rating;
+      const feedbackMonth = date.getMonth();
+      const feedbackYear = date.getFullYear();
+      
+      // Verificar se o feedback é do ano atual
+      if (feedbackYear === currentYear) {
+        monthlyData[feedbackMonth] += feedback.rating;
+        monthlyCount[feedbackMonth] += 1;
       }
     }
   });
 
-  return monthlyData.map((sum, index) => (sum ? sum / feedbackList.length : 4.0 + index * 0.1));
+  return months.map((month, index) => ({
+    month,
+    value: monthlyCount[index] > 0 ? Number((monthlyData[index] / monthlyCount[index]).toFixed(1)) : 0
+  }));
 };
 
 export default function DashboardScreen() {
   const { feedbackList, loading, error } = useFeedbackData();
   const screenWidth = Dimensions.get('window').width;
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  
+  // Estados para paginação e filtro
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const itemsPerPage = 10;
 
   if (loading) {
     return (
@@ -83,7 +107,7 @@ export default function DashboardScreen() {
     );
   }
 
-  if (feedbackList.length === 0) {
+  if (!feedbackList || feedbackList.length === 0) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={{ color: '#666666', fontWeight: '600', fontSize: 16 }}>
@@ -96,29 +120,51 @@ export default function DashboardScreen() {
     );
   }
 
-  const ratings = calculateRatingsDistribution(feedbackList);
   const averageRating = calculateAverageRating(feedbackList);
-  const recentFeedback = feedbackList.slice(0, 3); // Get the 3 most recent feedback entries
+  const monthlyResults = calculateMonthlyAverages(feedbackList);
+  const pieData = calculateRatingsDistribution(feedbackList).filter((item) => item.value > 0);
+
+  // Filtragem de feedbacks baseada na classificação de estrelas selecionada
+  const filteredFeedbacks = selectedRating 
+    ? feedbackList.filter(feedback => feedback.rating === selectedRating)
+    : feedbackList;
+
+  // Cálculo para paginação
+  const totalPages = Math.ceil(filteredFeedbacks.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredFeedbacks.length);
+  const currentFeedbacks = filteredFeedbacks.slice(startIndex, endIndex);
 
   const chartConfig = {
     backgroundColor: '#ffffff',
     backgroundGradientFrom: '#ffffff',
     backgroundGradientTo: '#ffffff',
-    decimalPlaces: 0,
+    decimalPlaces: 1,
     color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
 
-  const barData = {
-    labels: ['1★', '2★', '3★', '4★', '5★'],
-    datasets: [{ data: [ratings[1], ratings[2], ratings[3], ratings[4], ratings[5]] }],
+  const lineData = {
+    labels: months,
+    datasets: [
+      {
+        data: monthlyResults.map(item => item.value || 0),
+        color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
+      },
+    ],
   };
 
-  const lineData = {
-    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-    datasets: [
-      { data: calculateMonthlyAverages(feedbackList), color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})` },
-    ],
+  // Função para lidar com a mudança de página
+  const handlePageChange = (pageNumber: number) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // Função para lidar com a seleção de classificação por estrela
+  const handleRatingFilter = (rating: number) => {
+    setSelectedRating(selectedRating === rating ? null : rating);
+    setCurrentPage(1); // Resetar para a primeira página ao filtrar
   };
 
   return (
@@ -140,16 +186,44 @@ export default function DashboardScreen() {
 
       <View style={styles.chartContainer}>
         <Text style={styles.chartTitle}>Distribuição de Estrelas</Text>
-        <BarChart
-          data={barData}
+        <PieChart
+          data={pieData}
           width={screenWidth - 40}
-          height={220}
+          height={240}
           chartConfig={chartConfig}
+          accessor="value"
+          backgroundColor="transparent"
+          paddingLeft="0"
+          center={[0, -10]}
+          absolute
+          hasLegend={false}
           style={styles.chart}
-          showValuesOnTopOfBars
-          yAxisLabel=""
-          yAxisSuffix=""
         />
+        <View style={styles.percentageLegendContainer}>
+          {pieData.map((item, index) => (
+            <TouchableOpacity 
+              key={index} 
+              style={[
+                styles.legendItem,
+                selectedRating === item.starValue ? styles.selectedLegendItem : {}
+              ]}
+              onPress={() => handleRatingFilter(item.starValue)}
+            >
+              <View style={[styles.legendColorBox, { backgroundColor: item.color }]} />
+              <Text style={styles.legendText}>
+                {item.name}: {item.percentage}%
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        {selectedRating && (
+          <TouchableOpacity 
+            style={styles.clearFilterButton}
+            onPress={() => setSelectedRating(null)}
+          >
+            <Text style={styles.clearFilterText}>Limpar filtro</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.chartContainer}>
@@ -165,30 +239,64 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.feedbackContainer}>
-        <Text style={styles.sectionTitle}>Últimos Comentários</Text>
-        {recentFeedback.map((feedback) => (
-          <View key={feedback.id} style={styles.feedbackCard}>
-            <View style={styles.feedbackHeader}>
-              <View style={styles.ratingContainer}>
-                <Text style={styles.ratingText}>{feedback.rating}★</Text>
+        <Text style={styles.sectionTitle}>
+          {selectedRating 
+            ? `Avaliações com ${selectedRating} estrelas (${filteredFeedbacks.length})` 
+            : `Todas as Avaliações (${filteredFeedbacks.length})`}
+        </Text>
+        
+        {currentFeedbacks.length > 0 ? (
+          currentFeedbacks.map((feedback) => (
+            <View key={feedback.id} style={styles.feedbackCard}>
+              <View style={styles.feedbackHeader}>
+                <View style={styles.ratingContainer}>
+                  <Text style={styles.ratingText}>{feedback.rating}★</Text>
+                </View>
+                <Text style={styles.dateText}>
+                  {feedback.createdAt?.toDate().toISOString().split('T')[0] || 'N/A'}
+                </Text>
               </View>
-              <Text style={styles.dateText}>
-                {feedback.createdAt?.toDate().toISOString().split('T')[0] || 'N/A'}
-              </Text>
+              <Text style={styles.commentText}>{feedback.comment}</Text>
+              <View style={styles.categoriesContainer}>
+                {feedback.selectedOptions.map((optionId: string, index: number) => {
+                  const option = feedbackOptions.find((opt) => opt.id === optionId);
+                  return (
+                    <View key={index} style={styles.categoryTag}>
+                      <Text style={styles.categoryTagText}>{option?.label || optionId}</Text>
+                    </View>
+                  );
+                })}
+              </View>
             </View>
-            <Text style={styles.commentText}>{feedback.comment}</Text>
-            <View style={styles.categoriesContainer}>
-              {feedback.selectedOptions.map((optionId: string, index: number) => {
-                const option = feedbackOptions.find((opt) => opt.id === optionId);
-                return (
-                  <View key={index} style={styles.categoryTag}>
-                    <Text style={styles.categoryTagText}>{option?.label || optionId}</Text>
-                  </View>
-                );
-              })}
-            </View>
+          ))
+        ) : (
+          <Text style={styles.noFeedbackText}>Nenhuma avaliação encontrada com este filtro.</Text>
+        )}
+        
+        {/* Paginação */}
+        {totalPages > 1 && (
+          <View style={styles.paginationContainer}>
+            <TouchableOpacity 
+              style={[styles.paginationButton, currentPage === 1 ? styles.disabledButton : {}]}
+              onPress={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <Text style={styles.paginationButtonText}>Anterior</Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.paginationText}>
+              Página {currentPage} de {totalPages}
+            </Text>
+            
+            <TouchableOpacity 
+              style={[styles.paginationButton, currentPage === totalPages ? styles.disabledButton : {}]}
+              onPress={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <Text style={styles.paginationButtonText}>Próximo</Text>
+            </TouchableOpacity>
           </View>
-        ))}
+        )}
       </View>
     </ScrollView>
   );
@@ -208,7 +316,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     color: '#FFFFFF',
     fontSize: 28,
-    fontWeight: 'bold', // Replaced Inter_700Bold with fontWeight
+    fontWeight: 'bold',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -225,13 +333,13 @@ const styles = StyleSheet.create({
   },
   statNumber: {
     fontSize: 24,
-    fontWeight: 'bold', // Replaced Inter_700Bold with fontWeight
+    fontWeight: 'bold',
     color: '#FF0000',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
+    fontWeight: 'normal',
     color: '#666666',
   },
   chartContainer: {
@@ -240,7 +348,7 @@ const styles = StyleSheet.create({
   },
   chartTitle: {
     fontSize: 18,
-    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
+    fontWeight: '600',
     marginBottom: 16,
     color: '#FF0000',
   },
@@ -248,12 +356,63 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 16,
   },
+  legendContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  percentageLegendContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    justifyContent: 'center',
+    paddingHorizontal: 10,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+    marginBottom: 8,
+    padding: 4,
+    borderRadius: 4,
+  },
+  selectedLegendItem: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    borderWidth: 1,
+    borderColor: '#FF0000',
+  },
+  legendColorBox: {
+    width: 14,
+    height: 14,
+    borderRadius: 3,
+    marginRight: 6,
+  },
+  legendText: {
+    fontSize: 13,
+    color: '#333333',
+    fontWeight: 'normal',
+  },
+  clearFilterButton: {
+    marginTop: 10,
+    alignSelf: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 4,
+  },
+  clearFilterText: {
+    color: '#FF0000',
+    fontSize: 14,
+    fontWeight: '500',
+  },
   feedbackContainer: {
     padding: 20,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
+    fontWeight: '600',
     marginBottom: 16,
     color: '#FF0000',
   },
@@ -277,16 +436,16 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     color: '#FFFFFF',
-    fontWeight: '600', // Replaced Inter_600SemiBold with fontWeight
+    fontWeight: '600',
   },
   dateText: {
     color: '#666666',
-    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
+    fontWeight: 'normal',
     fontSize: 14,
   },
   commentText: {
     color: '#333333',
-    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
+    fontWeight: 'normal',
     fontSize: 16,
     marginBottom: 8,
   },
@@ -307,6 +466,40 @@ const styles = StyleSheet.create({
   categoryTagText: {
     color: '#FF0000',
     fontSize: 12,
-    fontWeight: 'normal', // Replaced Inter_400Regular with fontWeight
+    fontWeight: 'normal',
+  },
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#EEEEEE',
+  },
+  paginationButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#FF0000',
+    borderRadius: 6,
+  },
+  paginationButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  paginationText: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  disabledButton: {
+    backgroundColor: '#CCCCCC',
+  },
+  noFeedbackText: {
+    textAlign: 'center',
+    color: '#666666',
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
