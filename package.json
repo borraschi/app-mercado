@@ -1,7 +1,11 @@
 {
-  "name": "avaliador-app",
+  "name": "my-app",
+  "slug": "my-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "android": {
+    "package": "com.julia_borraschi.myapp"
+  },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",

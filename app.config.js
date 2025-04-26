@@ -1,8 +1,3 @@
-const dotenv = require('dotenv');
-
-// Load .env file
-dotenv.config();
-
 module.exports = () => {
   return {
     expo: {
@@ -22,6 +17,7 @@ module.exports = () => {
         supportsTablet: true,
       },
       android: {
+        package: "com.julia_borraschi.myapp",
         adaptiveIcon: {
           foregroundImage: "./assets/images/adaptive-icon.png",
           backgroundColor: "#ffffff",
@@ -46,6 +42,9 @@ module.exports = () => {
         firebaseMessagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
         firebaseAppId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
         expoRouterImportMode: process.env.EXPO_ROUTER_IMPORT_MODE || 'lazy',
+        eas: {
+          projectId: "5698d1cc-c7fb-49b8-a5ff-5bd18850d514", // Ensure projectId is included
+        },
       },
     },
   };
