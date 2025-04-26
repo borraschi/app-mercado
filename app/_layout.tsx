@@ -2,11 +2,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-//import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-//SplashScreen.preventAutoHideAsync();
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { EXPO_ROUTER_IMPORT_MODE } from '@/config/env';
+
+console.log('EXPO_ROUTER_IMPORT_MODE:', EXPO_ROUTER_IMPORT_MODE);
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
