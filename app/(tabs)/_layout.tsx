@@ -1,28 +1,39 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
+const TabColors = {
+  background: '#ffffff',
+  active: '#FF3333', 
+  inactive: '#990000',
+};
+
+const CustomTabBarBackground = () => {
+  return <View style={{ flex: 1, backgroundColor: TabColors.background }} />;
+};
+
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: TabColors.active,
+        tabBarInactiveTintColor: TabColors.inactive,
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
+        tabBarBackground: CustomTabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
+            backgroundColor: TabColors.background,
           },
-          default: {},
+          default: {
+            backgroundColor: TabColors.background,
+          },
         }),
       }}>
       <Tabs.Screen
@@ -35,7 +46,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Feedback',
+          title: 'Avaliação',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
         }}
       />

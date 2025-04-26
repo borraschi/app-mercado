@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
-    paddingVertical: 80,
+    paddingTop: 40,
     alignItems: 'center',
   },
   logo: {

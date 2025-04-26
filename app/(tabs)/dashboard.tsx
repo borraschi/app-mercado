@@ -185,10 +185,22 @@ export default function DashboardScreen() {
       </View>
 
       <View style={styles.chartContainer}>
+        <Text style={styles.chartTitle}>Média Mensal</Text>
+        <LineChart
+          data={lineData}
+          width={screenWidth - 40}
+          height={220}
+          chartConfig={chartConfig}
+          style={styles.chart}
+          bezier
+        />
+      </View>
+
+      <View style={styles.pieContainer}>
         <Text style={styles.chartTitle}>Distribuição de Estrelas</Text>
         <PieChart
           data={pieData}
-          width={screenWidth - 40}
+          width={screenWidth + screenWidth/1.3}
           height={240}
           chartConfig={chartConfig}
           accessor="value"
@@ -216,26 +228,41 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           ))}
         </View>
-        {selectedRating && (
-          <TouchableOpacity 
-            style={styles.clearFilterButton}
-            onPress={() => setSelectedRating(null)}
-          >
-            <Text style={styles.clearFilterText}>Limpar filtro</Text>
-          </TouchableOpacity>
-        )}
       </View>
 
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Média Mensal</Text>
-        <LineChart
-          data={lineData}
-          width={screenWidth - 40}
-          height={220}
-          chartConfig={chartConfig}
-          style={styles.chart}
-          bezier
-        />
+      {/* Filtro de estrelas separado e mais visível */}
+      <View style={styles.starFilterContainer}>
+        <Text style={styles.filterTitle}>Filtrar por avaliação:</Text>
+        <View style={styles.starButtonsContainer}>
+          {[1, 2, 3, 4, 5].map((rating) => (
+            <TouchableOpacity
+              key={rating}
+              style={[
+                styles.starButton,
+                selectedRating === rating ? styles.selectedStarButton : {}
+              ]}
+              onPress={() => handleRatingFilter(rating)}
+            >
+              <Text style={[
+                styles.starButtonText,
+                selectedRating === rating ? styles.selectedStarButtonText : {}
+              ]}>
+                {rating}★
+              </Text>
+            </TouchableOpacity>
+          ))}
+          {selectedRating && (
+            <TouchableOpacity 
+              style={styles.clearFilterButton}
+              onPress={() => {
+                setSelectedRating(null);
+                setCurrentPage(1);
+              }}
+            >
+              <Text style={styles.clearFilterText}>Limpar</Text>
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       <View style={styles.feedbackContainer}>
@@ -344,7 +371,11 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  pieContainer: {
+    padding: 20,
+    marginBottom: 10,
   },
   chartTitle: {
     fontSize: 18,
@@ -355,13 +386,6 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: 8,
     borderRadius: 16,
-  },
-  legendContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 12,
-    justifyContent: 'center',
-    paddingHorizontal: 10,
   },
   percentageLegendContainer: {
     flexDirection: 'row',
@@ -394,13 +418,55 @@ const styles = StyleSheet.create({
     color: '#333333',
     fontWeight: 'normal',
   },
-  clearFilterButton: {
-    marginTop: 10,
-    alignSelf: 'center',
+  starFilterContainer: {
+    backgroundColor: '#F8F8F8',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+  },
+  filterTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#333333',
+  },
+  starButtonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  starButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#DDDDDD',
     paddingVertical: 6,
     paddingHorizontal: 12,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  selectedStarButton: {
+    backgroundColor: '#FF0000',
+    borderColor: '#FF0000',
+  },
+  starButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FF0000',
+  },
+  selectedStarButtonText: {
+    color: '#FFFFFF',
+  },
+  clearFilterButton: {
     backgroundColor: '#F0F0F0',
-    borderRadius: 4,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginLeft: 8,
   },
   clearFilterText: {
     color: '#FF0000',
