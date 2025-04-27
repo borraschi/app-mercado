@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { db } from '@/services/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '@/services/supabase';
 
 interface FeedbackData {
   rating: number;
@@ -16,10 +15,15 @@ export const useSubmitFeedback = () => {
     setIsSubmitting(true);
     setError(null);
     try {
-      await addDoc(collection(db, 'feedback'), {
-        ...feedback,
-        createdAt: serverTimestamp(),
-      });
+      const { error: supabaseError } = await supabase
+        .from('feedback')
+        .insert({
+          ...feedback,
+          createdAt: new Date().toISOString(),
+        });
+
+      if (supabaseError) throw supabaseError;
+      
       setIsSubmitting(false);
       return true; // Indicate success
     } catch (err: any) {

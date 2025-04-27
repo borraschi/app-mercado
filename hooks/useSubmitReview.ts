@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { db } from '@/services/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '@/services/supabase';
 
 interface SubmitReviewParams {
   userId: string;
@@ -16,12 +15,16 @@ export const useSubmitReview = () => {
     setLoading(true);
     setError(null);
     try {
-      await addDoc(collection(db, 'reviews'), {
-        userId,
-        rating,
-        comment,
-        createdAt: serverTimestamp(),
-      });
+      const { error: supabaseError } = await supabase
+        .from('reviews')
+        .insert({
+          userId,
+          rating,
+          comment,
+          createdAt: new Date().toISOString(),
+        });
+
+      if (supabaseError) throw supabaseError;
     } catch (err: any) {
       setError(err.message);
     } finally {

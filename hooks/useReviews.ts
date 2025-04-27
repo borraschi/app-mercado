@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from '@/services/firebase';
-import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { supabase } from '@/services/supabase';
 
 interface Review {
   id: string;
@@ -16,24 +15,47 @@ export const useReviews = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'reviews'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const reviewsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Review[];
-        setReviews(reviewsData);
-        setLoading(false);
-      },
-      (err) => {
+    const fetchReviews = async () => {
+      try {
+        // Set up realtime subscription
+        const subscription = supabase
+          .channel('review-changes')
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'reviews' }, 
+            () => {
+              fetchInitialData();
+            }
+          )
+          .subscribe();
+
+        // Fetch initial data
+        fetchInitialData();
+
+        // Cleanup subscription
+        return () => {
+          supabase.removeChannel(subscription);
+        };
+      } catch (err: any) {
         setError(err.message);
         setLoading(false);
       }
-    );
+    };
 
-    return () => unsubscribe();
+    const fetchInitialData = async () => {
+      const { data, error: fetchError } = await supabase
+        .from('reviews')
+        .select('*')
+        .order('createdAt', { ascending: false });
+
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setReviews(data as Review[]);
+      }
+      setLoading(false);
+    };
+
+    fetchReviews();
   }, []);
 
   return { reviews, loading, error };

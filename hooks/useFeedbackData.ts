@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { db } from '@/services/firebase';
-import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
+import { supabase } from '@/services/supabase';
 
 interface Feedback {
   id: string;
   rating: number;
   selectedOptions: string[];
   comment: string;
-  createdAt: any; // Firestore Timestamp
+  createdAt: string;
 }
 
 export const useFeedbackData = () => {
@@ -16,24 +15,47 @@ export const useFeedbackData = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'feedback'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const feedbackData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Feedback[];
-        setFeedbackList(feedbackData);
-        setLoading(false);
-      },
-      (err) => {
+    const fetchFeedback = async () => {
+      try {
+        // Set up realtime subscription
+        const subscription = supabase
+          .channel('feedback-changes')
+          .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'feedback' }, 
+            () => {
+              fetchInitialData();
+            }
+          )
+          .subscribe();
+
+        // Fetch initial data
+        fetchInitialData();
+
+        // Cleanup subscription
+        return () => {
+          supabase.removeChannel(subscription);
+        };
+      } catch (err: any) {
         setError(err.message);
         setLoading(false);
       }
-    );
+    };
 
-    return () => unsubscribe();
+    const fetchInitialData = async () => {
+      const { data, error: fetchError } = await supabase
+        .from('feedback')
+        .select('*')
+        .order('createdAt', { ascending: false });
+
+      if (fetchError) {
+        setError(fetchError.message);
+      } else {
+        setFeedbackList(data as Feedback[]);
+      }
+      setLoading(false);
+    };
+
+    fetchFeedback();
   }, []);
 
   return { feedbackList, loading, error };
