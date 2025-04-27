@@ -1,13 +1,5 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-// import {
-//   EXPO_PUBLIC_FIREBASE_API_KEY,
-//   EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-//   FIREBASE_PROJECT_ID,
-//   FIREBASE_STORAGE_BUCKET,
-//   FIREBASE_MESSAGING_SENDER_ID,
-//   FIREBASE_APP_ID,
-// } from '@env';
 
 // Firebase configuration using environment variables
 const firebaseConfig = {

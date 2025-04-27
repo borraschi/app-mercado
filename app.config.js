@@ -18,6 +18,8 @@ module.exports = () => {
       },
       android: {
         package: "com.julia_borraschi.myapp",
+        permissions: ["INTERNET"],
+        googleServicesFile: "./google-services.json",
         adaptiveIcon: {
           foregroundImage: "./assets/images/adaptive-icon.png",
           backgroundColor: "#ffffff",
