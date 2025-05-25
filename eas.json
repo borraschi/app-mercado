@@ -1,0 +1,19 @@
+{
+    "build": {
+      "release": {
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "new-release": {
+        "android": {
+          "buildType": "apk"
+        }
+      },
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        }
+      }
+    }
+  }

@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "my-app",
+    "slug": "my-app",
+    "version": "1.0.0",
+    "sdkVersion": "50.0.0",
+    "platforms": [
+      "android"
+    ],
+    "projectId": "5698d1cc-c7fb-49b8-a5ff-5bd18850d514",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.julia_borraschi.myapp",
+      "permissions": ["INTERNET"],
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "firebaseApiKey": "AIzaSyBnhrvZxnm9pcR2FPgsaHVKOeXzzAj2MMg",
+      "firebaseAuthDomain": "avaliador-mercado.firebaseapp.com",
+      "firebaseProjectId": "avaliador-mercado",
+      "firebaseStorageBucket": "avaliador-mercado.firebasestorage.app",
+      "firebaseMessagingSenderId": "518827624430",
+      "firebaseAppId": "1:518827624430:android:51bf15928be61d961230ff",
+      "expoRouterImportMode": "lazy",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "5698d1cc-c7fb-49b8-a5ff-5bd18850d514"
+      }
+    }
+  }
+}
