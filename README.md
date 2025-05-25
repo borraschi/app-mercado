@@ -1,50 +1,33 @@
-# Welcome to your Expo app 👋
+# App para feedback de atendimento do mercado
+Este é um aplicativo mobile de avaliação de atendimento desenvolvido voluntariamente para um mercado local, com o objetivo de tornar mais acessível e eficiente a coleta de feedback dos clientes. Após o cliente pode avaliar o mercado através do tablet.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### Principais funcionalidades:
 
-## Get started
+- Identidade visual personalizada: O app foi customizado com a paleta de cores do mercado, mantendo a coerência com a marca.
 
-1. Install dependencies
+- Sem necessidade de login: A experiência do cliente é direta e prática — basta acessar e avaliar.
 
-   ```bash
-   npm install
-   ```
+- Interface simples e intuitiva: O cliente pode registrar sua opinião rapidamente por meio de estrelinhas, seleção de elogios ou pontos a melhorar, e um campo opcional para comentários.
 
-2. Start the app
+### Dashboard para o gestor: O responsável pelo estabelecimento conta com um painel que apresenta:
 
-   ```bash
-    npx expo start
-   ```
+- Gráficos com a média das avaliações.
 
-In the output, you'll find options to open the app in a
+- Comentários dos clientes para análises qualitativas.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Tecnologias utilizadas:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Javascript/Typescript
+- NodeJS
+- React Native
+- Expo
+- Firebase
 
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Guia de Instalação:
+- Instalar o Nodejs da fonte oficial.
+- Instalar o Expo: ´npm install -g expo-cli´.
+- Instalar as dependências, na pasta do projecto: ´npm install´.
+- Rodar o app com Expo: ´npx expo start --clear´.
+- Instalar o Expo Go em um celular ou tablet.
+- Scanear o QR Code que aparece no terminal.
+- Para gerar uma APK, basta seguir a documentação oficial do Expo.
